@@ -1,20 +1,40 @@
-const express = require('express');
-const mongoose = require('mongoose');
+
+import express from "express";
+import mongoose from "mongoose";
+import "dotenv/config";
+import router from "./routes/authRoutes.js";
 
 const app = express();
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// middleware
-app.use(express.static('public'));
+// Middleware
+app.use(express.static("public"));
 
-// view engine
-app.set('view engine', 'ejs');
+// View engine
+app.set("view engine", "ejs");
 
-// database connection
-const dbURI = 'mongodb+srv://shaun:test1234@cluster0.del96.mongodb.net/node-auth';
-mongoose.connect(dbURI, { useNewUrlParser: true, useUnifiedTopology: true, useCreateIndex:true })
-  .then((result) => app.listen(3000))
-  .catch((err) => console.log(err));
+// Database connection
+mongoose.connect(process.env.MONGO_URI).then(() => {
+    console.log("MongoDB connected successfully");
 
-// routes
-app.get('/', (req, res) => res.render('home'));
-app.get('/smoothies', (req, res) => res.render('smoothies'));
+    app.listen(3000, () => {
+      console.log("Server running on http://localhost:3000");
+    });
+  })
+  .catch((err) => {
+    console.error("MongoDB connection failed:", err.message);
+  });
+
+// Routes
+app.get("/", (req, res) => {
+  res.render("home");
+});
+
+app.get("/smoothies", (req, res) => {
+  res.render("smoothies");
+});
+
+app.use(router);
+
+
