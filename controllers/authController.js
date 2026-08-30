@@ -17,7 +17,7 @@ export const signup_post = async (req, res) => {
             password
         });
 
-        console.log(user);
+        res.send(user);
 
         res.send("Signup successful");
     } catch (error) {
