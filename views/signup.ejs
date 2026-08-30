@@ -3,17 +3,18 @@
    <form>
       <h1>Sign up</h1>
 
+      <!-- General success/error message -->
       <div class="success-message"></div>
       <div class="error-message"></div>
 
+      <!-- Email -->
       <label for="email">Email</label>
       <input type="email" name="email" required>
-
       <div class="error-email"></div>
 
+      <!-- Password -->
       <label for="password">Password</label>
       <input type="password" name="password" required>
-
       <div class="error-password"></div>
 
       <button type="submit">Sign up</button>
@@ -28,6 +29,13 @@
       const errorMessage =
          document.querySelector(".error-message");
 
+      const emailError =
+         document.querySelector(".error-email");
+
+      const passwordError =
+         document.querySelector(".error-password");
+
+
       form.addEventListener("submit", async (e) => {
 
          e.preventDefault();
@@ -35,7 +43,10 @@
          // Clear previous messages
          successMessage.textContent = "";
          errorMessage.textContent = "";
+         emailError.textContent = "";
+         passwordError.textContent = "";
 
+         // Get form values
          const email = form.email.value;
          const password = form.password.value;
 
@@ -56,27 +67,42 @@
 
             const data = await response.json();
 
+
             // SUCCESS
             if (response.ok) {
 
                successMessage.textContent = data.message;
 
-               // Make form empty
+               // Empty form
                form.reset();
 
             }
 
+
             // ERROR
             else {
 
+               // General error
                errorMessage.textContent = data.message;
 
-               // Show validation errors
+
+               // Validation errors
                if (data.errors) {
 
-                  errorMessage.textContent =
-                     data.errors.join(", ");
+                  data.errors.forEach((error) => {
+
+                     if (error.toLowerCase().includes("email")) {
+                        emailError.textContent = error;
+                     }
+
+                     if (error.toLowerCase().includes("password")) {
+                        passwordError.textContent = error;
+                     }
+
+                  });
+
                }
+
             }
 
          } catch (error) {
@@ -86,6 +112,7 @@
 
             console.log(error);
          }
+
       });
    </script>
 

@@ -1,30 +1,117 @@
 
 <%- include('partials/header'); -%>
 
-<form >
-   <h1>Login</h1>
-   <label for="email" >Email</label>
-   <input type="email" name="email" required>
-   <div class="error-email"></div>
-   <label for="password">Password</label>
-   <input type="password" name="password" required>
-   <div class="error-password"></div>
-   <button>Login</button>
-</form>
+   <form>
+      <h1>Login</h1>
 
-<script>
+      <!-- General messages -->
+      <div class="success-message"></div>
+      <div class="error-message"></div>
 
-   const From = document.querySelector('form');
+      <!-- Email -->
+      <label for="email">Email</label>
+      <input type="email" name="email" required>
+      <div class="error-email"></div>
 
-   From.addEventListener('submit' , (e) => {
-      e.preventDefault();
+      <!-- Password -->
+      <label for="password">Password</label>
+      <input type="password" name="password" required>
+      <div class="error-password"></div>
 
-      //get value
+      <button type="submit">Login</button>
+   </form>
 
-      const email = From.email.value;
-      const password = From.password.value;
-      console.log(email, password)
-   });
-</script>
+   <script>
+      const form = document.querySelector("form");
 
-<%- include('partials/footer'); -%>
+      const successMessage =
+         document.querySelector(".success-message");
+
+      const errorMessage =
+         document.querySelector(".error-message");
+
+      const emailError =
+         document.querySelector(".error-email");
+
+      const passwordError =
+         document.querySelector(".error-password");
+
+
+      form.addEventListener("submit", async (e) => {
+
+         e.preventDefault();
+
+         // Clear old messages
+         successMessage.textContent = "";
+         errorMessage.textContent = "";
+         emailError.textContent = "";
+         passwordError.textContent = "";
+
+         // Get values
+         const email = form.email.value;
+         const password = form.password.value;
+
+         try {
+
+            const response = await fetch("/login", {
+               method: "POST",
+
+               headers: {
+                  "Content-Type": "application/json"
+               },
+
+               body: JSON.stringify({
+                  email,
+                  password
+               })
+            });
+
+            const data = await response.json();
+
+
+            // SUCCESS
+            if (response.ok) {
+
+               successMessage.textContent = data.message;
+
+               form.reset();
+
+            }
+
+
+            // ERROR
+            else {
+
+               errorMessage.textContent = data.message;
+
+               if (data.errors) {
+
+                  data.errors.forEach((error) => {
+
+                     if (error.toLowerCase().includes("email")) {
+                        emailError.textContent = error;
+                     }
+
+                     if (error.toLowerCase().includes("password")) {
+                        passwordError.textContent = error;
+                     }
+
+                  });
+
+               }
+
+            }
+
+         } catch (error) {
+
+            errorMessage.textContent =
+               "Unable to connect to the server.";
+
+            console.log(error);
+         }
+
+      });
+   </script>
+
+   <%- include('partials/footer'); -%>
+      

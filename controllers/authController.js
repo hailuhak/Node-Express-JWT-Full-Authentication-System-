@@ -1,4 +1,6 @@
+
 import { User } from "../Models/user.js";
+import bcrypt from "bcrypt";
 
 export const signup_get = (req, res) => {
     res.render("signup");
@@ -12,26 +14,23 @@ export const signup_post = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        const user = await User.create({
+        await User.create({
             email,
             password
         });
 
         res.status(201).json({
-            message: "Signup successful",
-            user
+            message: "Signup successful"
         });
 
     } catch (error) {
 
-        // Duplicate email
         if (error.code === 11000) {
             return res.status(400).json({
                 message: "Email already exists"
             });
         }
 
-        // Validation errors
         if (error.name === "ValidationError") {
             return res.status(400).json({
                 message: "Signup failed",
@@ -41,19 +40,20 @@ export const signup_post = async (req, res) => {
             });
         }
 
-        // Other errors
         console.log(error);
 
-        return res.status(500).json({
+        res.status(500).json({
             message: "Something went wrong"
         });
     }
 };
 
+
 export const login_post = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Find user
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -62,16 +62,30 @@ export const login_post = async (req, res) => {
             });
         }
 
-        res.json({
-            message: "Login successful",
-            user
+        // Compare password with hashed password
+        const isMatch = await bcrypt.compare(
+            password,
+            user.password
+        );
+
+        if (!isMatch) {
+            return res.status(400).json({
+                message: "Email or password is incorrect"
+            });
+        }
+
+        // Login successful
+        res.status(200).json({
+            message: "Login successful"
         });
 
     } catch (error) {
+
         console.log(error);
 
         res.status(500).json({
-            message: "Login failed"
+            message: "Something went wrong"
         });
     }
 };
+
