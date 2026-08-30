@@ -1,6 +1,6 @@
-
 import { User } from "../Models/user.js";
 import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 export const signup_get = (req, res) => {
     res.render("signup");
@@ -48,12 +48,10 @@ export const signup_post = async (req, res) => {
     }
 };
 
-
 export const login_post = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        // Find user
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -62,7 +60,6 @@ export const login_post = async (req, res) => {
             });
         }
 
-        // Compare password with hashed password
         const isMatch = await bcrypt.compare(
             password,
             user.password
@@ -74,13 +71,24 @@ export const login_post = async (req, res) => {
             });
         }
 
-        // Login successful
+        // Create JWT
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        // Store JWT in cookie
+        res.cookie("jwt", token, {
+            httpOnly: true,
+            maxAge: 60 * 60 * 1000
+        });
+
         res.status(200).json({
             message: "Login successful"
         });
 
     } catch (error) {
-
         console.log(error);
 
         res.status(500).json({
