@@ -14,7 +14,7 @@ app.use(express.static("public"));
 // View engine
 app.set("view engine", "ejs");
 
-// Database connection
+//Database connection
 mongoose.connect(process.env.MONGO_URI).then(() => {
     console.log("MongoDB connected successfully");
 
@@ -25,6 +25,7 @@ mongoose.connect(process.env.MONGO_URI).then(() => {
   .catch((err) => {
     console.error("MongoDB connection failed:", err.message);
   });
+
 
 // Routes
 app.get("/", (req, res) => {

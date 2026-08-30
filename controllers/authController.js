@@ -17,12 +17,36 @@ export const signup_post = async (req, res) => {
             password
         });
 
-        res.send(user);
+        res.status(201).json({
+            message: "Signup successful",
+            user
+        });
 
-        res.send("Signup successful");
     } catch (error) {
+
+        // Duplicate email
+        if (error.code === 11000) {
+            return res.status(400).json({
+                message: "Email already exists"
+            });
+        }
+
+        // Validation errors
+        if (error.name === "ValidationError") {
+            return res.status(400).json({
+                message: "Signup failed",
+                errors: Object.values(error.errors).map(
+                    err => err.message
+                )
+            });
+        }
+
+        // Other errors
         console.log(error);
-        res.status(400).send("Signup failed");
+
+        return res.status(500).json({
+            message: "Something went wrong"
+        });
     }
 };
 
@@ -32,11 +56,22 @@ export const login_post = async (req, res) => {
     try {
         const user = await User.findOne({ email });
 
-        console.log(user);
+        if (!user) {
+            return res.status(400).json({
+                message: "Email or password is incorrect"
+            });
+        }
 
-        res.send("Login received");
+        res.json({
+            message: "Login successful",
+            user
+        });
+
     } catch (error) {
         console.log(error);
-        res.status(400).send("Login failed");
+
+        res.status(500).json({
+            message: "Login failed"
+        });
     }
 };

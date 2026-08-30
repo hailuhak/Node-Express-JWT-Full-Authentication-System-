@@ -1,6 +1,92 @@
-
 <%- include('partials/header'); -%>
 
-<h1>signup</h1>
+   <form>
+      <h1>Sign up</h1>
 
-<%- include('partials/footer'); -%>
+      <div class="success-message"></div>
+      <div class="error-message"></div>
+
+      <label for="email">Email</label>
+      <input type="email" name="email" required>
+
+      <div class="error-email"></div>
+
+      <label for="password">Password</label>
+      <input type="password" name="password" required>
+
+      <div class="error-password"></div>
+
+      <button type="submit">Sign up</button>
+   </form>
+
+   <script>
+      const form = document.querySelector("form");
+
+      const successMessage =
+         document.querySelector(".success-message");
+
+      const errorMessage =
+         document.querySelector(".error-message");
+
+      form.addEventListener("submit", async (e) => {
+
+         e.preventDefault();
+
+         // Clear previous messages
+         successMessage.textContent = "";
+         errorMessage.textContent = "";
+
+         const email = form.email.value;
+         const password = form.password.value;
+
+         try {
+
+            const response = await fetch("/signup", {
+               method: "POST",
+
+               headers: {
+                  "Content-Type": "application/json"
+               },
+
+               body: JSON.stringify({
+                  email,
+                  password
+               })
+            });
+
+            const data = await response.json();
+
+            // SUCCESS
+            if (response.ok) {
+
+               successMessage.textContent = data.message;
+
+               // Make form empty
+               form.reset();
+
+            }
+
+            // ERROR
+            else {
+
+               errorMessage.textContent = data.message;
+
+               // Show validation errors
+               if (data.errors) {
+
+                  errorMessage.textContent =
+                     data.errors.join(", ");
+               }
+            }
+
+         } catch (error) {
+
+            errorMessage.textContent =
+               "Unable to connect to the server.";
+
+            console.log(error);
+         }
+      });
+   </script>
+
+   <%- include('partials/footer'); -%>

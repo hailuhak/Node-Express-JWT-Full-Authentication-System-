@@ -5,11 +5,13 @@
   "main": "app.js",
   "type": "module",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "dotenv": "^17.4.2",
     "ejs": "^3.1.3",
     "express": "^4.17.1",
     "mongodb": "^7.6.0",
-    "mongoose": "^9.9.4"
+    "mongoose": "^9.9.4",
+    "validator": "^13.15.35"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"
