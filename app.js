@@ -34,9 +34,6 @@ app.get("/", (req, res) => {
   res.render("home");
 });
 
-app.get("/smoothies", (req, res) => {
-  res.render("smoothies");
-});
 
 app.use(router);
 

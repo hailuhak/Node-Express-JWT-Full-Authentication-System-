@@ -1,6 +1,9 @@
+
 import { User } from "../Models/user.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+
+// ==================== GET ====================
 
 export const signup_get = (req, res) => {
     res.render("signup");
@@ -10,13 +13,29 @@ export const login_get = (req, res) => {
     res.render("login");
 };
 
+// ==================== SIGNUP ====================
+
 export const signup_post = async (req, res) => {
     const { email, password } = req.body;
 
     try {
-        await User.create({
+        // Create user
+        const user = await User.create({
             email,
             password
+        });
+
+        // Create JWT
+        const token = jwt.sign(
+            { userId: user._id },
+            process.env.JWT_SECRET,
+            { expiresIn: "1h" }
+        );
+
+        // Store JWT in cookie
+        res.cookie("jwt", token, {
+            httpOnly: true,
+            maxAge: 60 * 60 * 1000
         });
 
         res.status(201).json({
@@ -25,12 +44,14 @@ export const signup_post = async (req, res) => {
 
     } catch (error) {
 
+        // Duplicate email
         if (error.code === 11000) {
             return res.status(400).json({
                 message: "Email already exists"
             });
         }
 
+        // Validation errors
         if (error.name === "ValidationError") {
             return res.status(400).json({
                 message: "Signup failed",
@@ -48,10 +69,14 @@ export const signup_post = async (req, res) => {
     }
 };
 
+
+// ==================== LOGIN ====================
+
 export const login_post = async (req, res) => {
     const { email, password } = req.body;
 
     try {
+        // Find user
         const user = await User.findOne({ email });
 
         if (!user) {
@@ -60,6 +85,7 @@ export const login_post = async (req, res) => {
             });
         }
 
+        // Check password
         const isMatch = await bcrypt.compare(
             password,
             user.password
@@ -89,6 +115,7 @@ export const login_post = async (req, res) => {
         });
 
     } catch (error) {
+
         console.log(error);
 
         res.status(500).json({
