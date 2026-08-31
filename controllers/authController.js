@@ -123,4 +123,9 @@ export const login_post = async (req, res) => {
         });
     }
 };
+export const logout_get = (req, res) => {
+    res.clearCookie("jwt");
+
+    res.redirect("/");
+};
 

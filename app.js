@@ -12,6 +12,7 @@ app.use(cookieParser());
 
 // Middleware
 app.use(express.static("public"));
+app.use(checkUser);
 
 // View engine
 app.set("view engine", "ejs");
