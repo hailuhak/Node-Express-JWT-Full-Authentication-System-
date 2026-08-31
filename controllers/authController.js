@@ -33,10 +33,11 @@ export const signup_post = async (req, res) => {
         );
 
         // Store JWT in cookie
-        res.cookie("jwt", token, {
-            httpOnly: true,
-            maxAge: 60 * 60 * 1000
-        });
+      res.cookie("jwt", token, {
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 1000
+});
 
         res.status(201).json({
             message: "Signup successful"
@@ -106,9 +107,10 @@ export const login_post = async (req, res) => {
 
         // Store JWT in cookie
         res.cookie("jwt", token, {
-            httpOnly: true,
-            maxAge: 60 * 60 * 1000
-        });
+    httpOnly: true,
+    sameSite: "lax",
+    maxAge: 60 * 60 * 1000
+});
 
         res.status(200).json({
             message: "Login successful"

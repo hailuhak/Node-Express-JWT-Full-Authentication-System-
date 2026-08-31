@@ -1,7 +1,8 @@
 import jwt from "jsonwebtoken";
 import { User } from "../Models/user.js";
 
-export const requireAuth = (req, res, next) => {
+// Protect specific routes
+export const requireAuth = async (req, res, next) => {
     const token = req.cookies.jwt;
 
     if (!token) {
@@ -14,7 +15,13 @@ export const requireAuth = (req, res, next) => {
             process.env.JWT_SECRET
         );
 
-        req.user = decoded;
+        const user = await User.findById(decoded.userId);
+
+        if (!user) {
+            return res.redirect("/login");
+        }
+
+        req.user = user;
 
         next();
 
@@ -23,26 +30,28 @@ export const requireAuth = (req, res, next) => {
     }
 };
 
+// Check user on every request
 export const checkUser = async (req, res, next) => {
     const token = req.cookies.jwt;
 
-    // No JWT → user is not logged in
     if (!token) {
         res.locals.user = null;
         return next();
     }
 
     try {
-        // Verify JWT
         const decoded = jwt.verify(
             token,
             process.env.JWT_SECRET
         );
 
-        // Find user in database
         const user = await User.findById(decoded.userId);
 
-        // Make user available to all EJS views
+        if (!user) {
+            res.locals.user = null;
+            return next();
+        }
+
         res.locals.user = user;
 
         next();
@@ -52,4 +61,3 @@ export const checkUser = async (req, res, next) => {
         next();
     }
 };
-

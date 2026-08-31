@@ -14,6 +14,6 @@ router.post("/login", login_post);
 router.get("/smoothies", requireAuth, (req, res) => {
     res.render("smoothies");
 });
-router.get("/logout", logout_get);
+
 
 export default router;
